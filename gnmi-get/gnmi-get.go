@@ -161,7 +161,7 @@ func main() {
 
 	getResp, err := gNMIC.Get(ctx, &getReq)
 	if err != nil {
-		log.Fatalf("able to execute get request: %v", err)
+		log.Fatalf("unable to execute get request: %v", err)
 	}
 
 	// Printing message in text form into STDOUT
