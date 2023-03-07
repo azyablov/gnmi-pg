@@ -7,7 +7,6 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"os"
 
 	"google.golang.org/grpc"
@@ -49,29 +48,29 @@ func SetupGNMISecureTransport(t TLSInit) (*[]grpc.DialOption, error) {
 			// Populating root CA certificates pool
 			fh, err := os.Open(t.RootCA)
 			if err != nil {
-				log.Fatal(err)
+				return nil, fmt.Errorf("populating root CA certificates pool: %s", err)
 			}
 			bs, err := ioutil.ReadAll(fh)
 			if err != nil {
-				log.Fatal(err)
+				return nil, fmt.Errorf("reading root CA cert: %s", err)
 			}
 
 			certCAPool := x509.NewCertPool()
 			if !certCAPool.AppendCertsFromPEM(bs) {
-				log.Fatalf("can't load PEM file for rootCA")
+				return nil, errors.New("can't load PEM file for rootCAt")
 			}
 			tlsConfig.RootCAs = certCAPool
 
 			// Loading certificate
 			certTLS, err := tls.LoadX509KeyPair(t.Cert, t.Key)
 			if err != nil {
-				log.Fatal(err)
+				return nil, fmt.Errorf("can't load certificate keypair: %s", err)
 			}
 			// Leaf is the parsed form of the leaf certificate, which may be initialized
 			// using x509.ParseCertificate to reduce per-handshake processing.
 			certTLS.Leaf, err = x509.ParseCertificate(certTLS.Certificate[0])
 			if err != nil {
-				log.Fatal(err)
+				return nil, fmt.Errorf("cert parsing error: %s", err)
 			}
 			tlsConfig.Certificates = []tls.Certificate{certTLS}
 
